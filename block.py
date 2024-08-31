@@ -103,7 +103,7 @@ class BotHandler:
  # وقت تشغيل التيلجرام
 
 
-def startup(id):
+def startup(id,name):
     print('mm')
    
     # استعلام الاعلان
