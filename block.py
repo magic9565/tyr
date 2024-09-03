@@ -9,7 +9,7 @@ import termcolor
 import pyfiglet
 import re
 from pprint import pprint
-from datetime import date
+from datetime import date,datetime
 import convert_numbers
 from reportlab.pdfgen import canvas
 from PyPDF2 import PdfFileWriter, PdfFileReader
@@ -25,7 +25,7 @@ mycursor = myconn.cursor()
 
 
 today = date.today()
-
+timeNow=datetime.now()
 d1 = today.strftime("%Y/%m/%d")
 dat=today.strftime("%A")
 if dat == 'Friday':
@@ -104,30 +104,34 @@ class BotHandler:
 
 
 def startup(id,name):
-    print('mm')
+
+    
    
-    # استعلام الاعلان
-    mycursor.execute("SELECT ad from AD")
+    mycursor.execute("FLUSH TABLE `register_bot_id1`")
+    mycursor.execute("select COUNT(DISTINCT(text)) from `register_bot_id1`WHERE text LIKE '4432%'")
     result55 = mycursor.fetchall()
-    # يتاكد المتدرب  في الفصل الحالي
-    mycursor.execute(
-        f"SELECT * FROM `register_bot_id` WHERE `id-telegram`={id}")
-    search = mycursor.fetchall()
-    # يتاكد ان المتدرب من الفصول السابقة
-    mycursor.execute(
-        f"SELECT * FROM `register_bot_id1` WHERE `id-telegram`={id}")
-    search1 = mycursor.fetchall()
-    if search:
-        keyboard = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text=f"{emoAD} {result55[0][0]} {emoAD}")]])
-        bot.sendMessage(id, f' اهلا {name}', reply_markup=keyboard)
-    elif search1:
-        keyboard = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text=f"{emoAD} {result55[0][0]} {emoAD}")]])
-        bot.sendMessage(id, f' اهلا {name}', reply_markup=keyboard)
-    else:
-        keyboard = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text=f"{emoAD} اعلان لايظهر للزوار {emoAD}")], [
-                                       KeyboardButton(text="المقررات المتبقية"), KeyboardButton(text="تسجيل حضورك بالمحاضرة", request_location=True)],[
-                                       KeyboardButton(text='Quiz'), KeyboardButton(text="جدولي")], [KeyboardButton(text=f"اهلا بالزائر")]])
-        bot.sendMessage(id, f' اهلا  {name} ')
+    print(result55[0][0])
+    keyboard = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text=f"{emoAD}   عدد المستلمين جداولهم {result55[0][0]} {emoAD}")]])
+    bot.sendMessage(id, f' اهلا {name}', reply_markup=keyboard)
+    # # يتاكد المتدرب  في الفصل الحالي
+    # mycursor.execute(
+    #     f"SELECT * FROM `register_bot_id` WHERE `id-telegram`={id}")
+    # search = mycursor.fetchall()
+    # # يتاكد ان المتدرب من الفصول السابقة
+    # mycursor.execute(
+    #     f"SELECT * FROM `register_bot_id1` WHERE `id-telegram`={id}")
+    # search1 = mycursor.fetchall()
+    # if search:
+    #     keyboard = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text=f"{emoAD} {result55[0][0]} {emoAD}")]])
+    #     bot.sendMessage(id, f' اهلا {name}', reply_markup=keyboard)
+    # elif search1:
+    #     keyboard = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text=f"{emoAD} {result55[0][0]} {emoAD}")]])
+    #     bot.sendMessage(id, f' اهلا {name}', reply_markup=keyboard)
+    # else:
+        # keyboard = ReplyKeyboardMarkup(keyboard=[[KeyboardButton(text=f"{emoAD} اعلان لايظهر للزوار {emoAD}")], [
+        #                                KeyboardButton(text="المقررات المتبقية"), KeyboardButton(text="تسجيل حضورك بالمحاضرة", request_location=True)],[
+        #                                KeyboardButton(text='Quiz'), KeyboardButton(text="جدولي")], [KeyboardButton(text=f"اهلا بالزائر")]])
+        # bot.sendMessage(id, f' اهلا  {name} ')
 # خاص بجداول الطلاب
 
 
@@ -136,172 +140,70 @@ def startup(id,name):
 # شهادات سيسكو
 
 
-# def cert(id):
-#     mycursor.execute(
-#         f"SELECT * FROM `register_bot_id1` WHERE `id-telegram`={id}")
-#     search1 = mycursor.fetchall()
-#     mycursor.execute(
-#         f"SELECT * FROM `register_bot_id` WHERE `id-telegram`={id}")
-#     search = mycursor.fetchall()
-#     if search1:
-#         mycursor.execute(f"select * from cert WHERE id ={search1[0][3]}")
-#         certSerch = mycursor.fetchall()
-#         if certSerch:
-#             in_pdf_file = f'html/cert/{search1[0][3]}.pdf'
-#             out_pdf_file = f'html/cert/{search1[0][3]}-2.pdf'
-#             img_file = 'html/stamp.png'
-#             packet = io.BytesIO()
-#             can = canvas.Canvas(packet)
-#             #can.drawString(10, 100, "Hello world")
-#             x_start = 200
-#             y_start = 5
-#             can.drawImage(img_file, x_start, y_start, width=120, preserveAspectRatio=True, mask='auto')
-#             can.showPage()
-#             can.showPage()
-#             can.showPage()
-#             can.save()
 
-#             #move to the beginning of the StringIO buffer
-#             packet.seek(0)
-
-#             new_pdf = PdfFileReader(packet)
-
-#             # read the existing PDF
-#             existing_pdf = PdfFileReader(open(in_pdf_file, "rb"))
-#             output = PdfFileWriter()
-
-#             for i in range(len(existing_pdf.pages)):
-#                 page = existing_pdf.getPage(i)
-#                 page.mergePage(new_pdf.getPage(i))
-#                 output.addPage(page)
-
-#             outputStream = open(out_pdf_file, "wb")
-#             output.write(outputStream)
-#             outputStream.close()
-#             bot.sendDocument(id, f'http://twq9.com/cert/{search1[0][3]}-2.pdf')
-#             bot.sendMessage(181918397,'<b>طالب استلم شهادته</b>')
-
-#         else:
-#             bot.sendMessage(id, 'عفوا لايوجد لديك شهادة لسيسكو')
-#             bot.sendMessage(181918397, 'طالب في الفصول السابقة ماعنده شهادة سيسكو ويستعلم')
-#     elif search:
-#         bot.sendMessage(id, 'لم يتم الانتهاء من الشهادة انتظر')
-#         bot.sendMessage(181918397, 'طالب في الفصل الحالي ماخلص ويبغى الشهاده')
-#     else:
-#         bot.sendMessage(id, 'اكتب رقمك التدريبي لكي يتم التعرف عليك')
-#         bot.sendMessage(181918397, 'زائر كتب شهادة سيسكو كتابة')
 #خاص بالمعلم تسجيل الطلاب بداية التحضير
-# def reg():
-#     print(dat)
-#     mycursor.execute(f"SELECT * FROM s where day='{dat}'")
-#     search = mycursor.fetchall()
-#     mycursor.execute(f"SELECT * FROM attendance where date='{d1}'")
-#     dateA = mycursor.fetchall()
-#     if search:
-#         if dateA:
-#             bot.sendMessage(181918397,'<b> يوجد متدربين لهم حضور في نفس التاريخ</b>')
-#         else:
-#             for i in search:
-#                 mycursor.execute(f"insert into `attendance`(id,day,date,class1,class2) values({i[4]},'{dat}','{d1}',0,0)")
-#                 myconn.commit()
-#             bot.sendMessage(181918397,'<b>تم تسجيل المتدربين لهذا اليوم</b>')
-#     else:
-#         bot.sendMessage(181918397,'<b>لايوجد متدربين للتسجيل</b>')
+def reg():
+    print(dat)
+    mycursor.execute(f"SELECT * FROM s where day='{dat}'")
+    search = mycursor.fetchall()
+    mycursor.execute(f"SELECT * FROM attendance where date='{d1}'")
+    dateA = mycursor.fetchall()
+    if search:
+        if dateA:
+            bot.sendMessage(181918397,'<b> يوجد متدربين لهم حضور في نفس التاريخ</b>')
+        else:
+            for i in search:
+                mycursor.execute(f"insert into `attendance`(id,day,date,class1,class2) values({i[4]},'{dat}','{d1}',0,0)")
+                myconn.commit()
+            bot.sendMessage(181918397,'<b>تم تسجيل المتدربين لهذا اليوم</b>')
+    else:
+        bot.sendMessage(181918397,'<b>لايوجد متدربين للتسجيل</b>')
 # التحضير والموقع
-# def loc(lat, lon,id):
-#     mycursor.execute(f"SELECT * FROM `register_bot_id` WHERE `id-telegram`={id}")
-#     search = mycursor.fetchall()
-#     mycursor.execute(f"SELECT `on/off` FROM `on/off` WHERE name='class1'")
-#     class1 = mycursor.fetchall()
-#     mycursor.execute(f"SELECT `on/off` FROM `on/off` WHERE name='class2'")
-#     class2 = mycursor.fetchall()
+def loc(lat, lon,id):
+    mycursor.execute(f"SELECT * FROM `register_bot_id` WHERE `id-telegram`={id}")
+    search = mycursor.fetchall()
+    mycursor.execute(f"SELECT `on/off` FROM `on/off` WHERE name='class1'")
+    class1 = mycursor.fetchall()
+    mycursor.execute(f"SELECT `on/off` FROM `on/off` WHERE name='class2'")
+    class2 = mycursor.fetchall()
     
-#     mycursor.execute("FLUSH TABLE `on/off`")
-#     if search:
-#         mycursor.execute(f"SELECT * from s where day='{dat}' and id='{search[0][3]}'")
-#         ddat = mycursor.fetchall()
-#         if ddat:
-#             if class1[0][0]== 1 and class2[0][0]== 0:
-#                 mycursor.execute(f"insert into `location`(id,latitude,longitude) values({search[0][3]},'{lat}','{lon}')")
-#                 myconn.commit()
-#                 mycursor.execute(f"UPDATE `attendance` SET class1=1 WHERE id={search[0][3]}")
-#                 myconn.commit()
-#                 bot.sendMessage(id,'<b>تم تحضيرك المحاضرة الاولى</b>')
-#                 bot.sendMessage(181918397,f'<b> {id}تم تحضيرك المحاضرة الاولى</b>')
-#             elif class2[0][0]== 1 and class1[0][0]== 0:
-#                 mycursor.execute(f"insert into `location`(id,latitude,longitude) values({search[0][3]},'{lat}','{lon}')")
-#                 myconn.commit()
-#                 mycursor.execute(f"UPDATE `attendance` SET class2=1 WHERE id={search[0][3]}")
-#                 myconn.commit()
-#                 bot.sendMessage(id,'<b>تم تحضيرك المحاضرة الثانية</b>')
-#                 bot.sendMessage(id,f'<b> {id}تم تحضيرك المحاضرة الثانية</b>')
-#             elif class2[0][0]== 1 and class1[0][0]== 1:
-#                 bot.sendMessage(id,'<b>التحضير مغلق</b>')
-#                 bot.sendMessage(181918397,'<b>المحاضرتين كلها شغاله طفي وحده منها</b>')
-#             else:
-#                 bot.sendMessage(id,'<b>التحضير مغلق</b>')
-#                 bot.sendMessage(181918397,f'<b> {id} التحضير مغلق</b>')
-#         else:
-#             bot.sendMessage(id,'<b>لاتوجد محاضره لديك في الوقت الحالي</b>')
-#             bot.sendMessage(181918397,'<b>لايوجد محاضره لديك في الوقت الحالي</b>')
-#     else:
-#         bot.sendMessage(id,'<b>مااحتاج موقعك ليه ترسله</b>')
-#         bot.sendMessage(181918397,f' <b>واحد ارسل موقعه وهو مو متدرب عندك رقمه {id}</b>')
+    mycursor.execute("FLUSH TABLE `on/off`")
+    if search:
+        mycursor.execute(f"SELECT * from s where day='{dat}' and id='{search[0][3]}'")
+        ddat = mycursor.fetchall()
+        if ddat:
+            if class1[0][0]== 1 and class2[0][0]== 0:
+                mycursor.execute(f"insert into `location`(id,latitude,longitude) values({search[0][3]},'{lat}','{lon}')")
+                myconn.commit()
+                mycursor.execute(f"UPDATE `attendance` SET class1=1 WHERE id={search[0][3]}")
+                myconn.commit()
+                bot.sendMessage(id,'<b>تم تحضيرك المحاضرة الاولى</b>')
+                bot.sendMessage(181918397,f'<b> {id}تم تحضيرك المحاضرة الاولى</b>')
+            elif class2[0][0]== 1 and class1[0][0]== 0:
+                mycursor.execute(f"insert into `location`(id,latitude,longitude) values({search[0][3]},'{lat}','{lon}')")
+                myconn.commit()
+                mycursor.execute(f"UPDATE `attendance` SET class2=1 WHERE id={search[0][3]}")
+                myconn.commit()
+                bot.sendMessage(id,'<b>تم تحضيرك المحاضرة الثانية</b>')
+                bot.sendMessage(id,f'<b> {id}تم تحضيرك المحاضرة الثانية</b>')
+            elif class2[0][0]== 1 and class1[0][0]== 1:
+                bot.sendMessage(id,'<b>التحضير مغلق</b>')
+                bot.sendMessage(181918397,'<b>المحاضرتين كلها شغاله طفي وحده منها</b>')
+            else:
+                bot.sendMessage(id,'<b>التحضير مغلق</b>')
+                bot.sendMessage(181918397,f'<b> {id} التحضير مغلق</b>')
+        else:
+            bot.sendMessage(id,'<b>لاتوجد محاضره لديك في الوقت الحالي</b>')
+            bot.sendMessage(181918397,'<b>لايوجد محاضره لديك في الوقت الحالي</b>')
+    else:
+        bot.sendMessage(id,'<b>مااحتاج موقعك ليه ترسله</b>')
+        bot.sendMessage(181918397,f' <b>واحد ارسل موقعه وهو مو متدرب عندك رقمه {id}</b>')
 
 # المقررات المتبقية
-# def mat(id):
-#     mycursor.execute(
-#         f"SELECT * FROM `register_bot_id1` WHERE `id-telegram`={id}")
-#     search1 = mycursor.fetchall()
-#     mycursor.execute(
-#         f"SELECT * FROM `register_bot_id` WHERE `id-telegram`={id}")
-#     search = mycursor.fetchall()
-#     if search :
-#         mycursor.execute(f"SELECT * FROM allSTD WHERE id={search[0][3]}")
-#         allSTD = mycursor.fetchall()
-#         mycursor.execute(f"SELECT * FROM mat WHERE id={search[0][3]}")
-#         mat = mycursor.fetchall()
-#         if allSTD:
-#             if mat:
-#                 for i in mat:
-#                     bot.sendMessage(id,f"<pre>{i[3]} </pre> <b>({i[4]})</b>")
-#             else:
-#                 bot.sendMessage(id,f'عفوا لايوجد لديك مقررات متبقية سيتم ابلاغ المدرس بوضعك  يا {allSTD[0][1]}')
-#                 bot.sendMessage(181918397,f' <b> متدرب لدينا ويستعلم عن المقررات المتبقية ولكن لايوجد له ملف {allSTD[0][1]}</b>')
-            
-#         else:
-
-#             bot.sendMessage(id,f' <b>عفوا لستeeee متدرب</b>')
-#             bot.sendMessage(181918397,f' <b>عفوا لست متدرب{id}</b>')
-#     elif search1 :
-#         mycursor.execute(f"SELECT * FROM allSTD WHERE id={search1[0][3]}")
-#         allSTD = mycursor.fetchall()
-        
-#         if allSTD:
-#             mycursor.execute(f"SELECT * FROM mat WHERE id={search1[0][3]}")
-#             mat = mycursor.fetchall()
-#             if mat:
-#                 for i in mat:
-#                     bot.sendMessage(id,f"<pre>{i[3]} </pre> <u>({i[4]})</u>")
-#             else:
-#                 bot.sendMessage(id,f'عفوا لايوجد لديك مقررات متبقية سيتم ابلاغ المدرس بوضعك  يا {allSTD[0][1]}')
-#                 bot.sendMessage(181918397,f' <b>متدرب لدينا ويستعلم عن المقررات المتبقية ولكن لايوجد له ملف {allSTD[0][1]}</b>')
-            
-#         else:
-#             bot.sendMessage(id,f' <b>عفوا لست ffffمتدرب</b>')
-#             bot.sendMessage(181918397,f' <b>عفوا لست متدرب {id}</b>')
-   
-          
-#     else:
-#         bot.sendMessage(id,'<b>انت لست متدرب اكتب رقمك التدريبي</b>')
-#         bot.sendMessage(181918397,f' <b>زائر يستعلم عن المقررات التدريبية{id}</b>')
-
-        
 
 
-token = '1642744313:AAGbKd2aXebP7a9qeGE5nMBuWSWq86c94dQ'  # original
-# token = '1675318981:AAFIdxviHf_638wGMonTrk_yRSxuBTzAFzo'    # test
-# token='5511734916:AAEXucSQ80gRetd90qj3oXZdK3vUIcaguoo'
+
+token = '5621849796:AAGIxtHkThb7Bm-1CrHCELt72XEYEk99GqY'    # test
 magnito_bot = BotHandler(token)  # Your bot's name
 bot = telepot.Bot(token)
 
@@ -365,9 +267,8 @@ def main():
                 elif 'text' in current_update['message']:
                     first_chat_text = current_update['message']['text']
                     first_chat_id = current_update['message']['chat']['id']
-    
-                    magnito_bot.send_message(181918397, f'{first_chat_text}  {first_chat_id}')
-                    new_offset = first_update_id + 1
+                    bot.sendMessage(
+                        181918397, f'{first_chat_text}  {first_chat_id}')
                     
 
                 elif 'photo' in current_update['message']:
@@ -376,7 +277,7 @@ def main():
                     bot.sendMessage(
                         first_chat_id, '<b> TVTC </b>'.center(23, emoLogo))
                     magnito_bot.send_photo(
-                        first_chat_id, 'http://twq9.com/enter.jpg')
+                        first_chat_id, 'http://twq9.com/back.jpg')
                     bot.sendMessage(first_chat_id, '<b> تم استلام الصورة </b>')
                     bot.sendPhoto(181918397, photoID, first_chat_id)
                     new_offset = first_update_id + 1
@@ -387,7 +288,7 @@ def main():
                     bot.sendMessage(
                         first_chat_id, '<b> TVTC </b>'.center(23, emoLogo))
                     magnito_bot.send_photo(
-                        first_chat_id, 'http://twq9.com/enter.jpg')
+                        first_chat_id, 'https://twq9.com/back.jpg')
                     bot.sendMessage(
                         first_chat_id, '<b>نوع الملفات غير مسموح به</b>')
                     new_offset = first_update_id + 1
@@ -419,7 +320,7 @@ def main():
                     bot.sendMessage(
                         first_chat_id, '<b> TVTC </b>'.center(23, emoLogo))
                     magnito_bot.send_photo(
-                        first_chat_id, 'http://twq9.com/enter.jpg')
+                        first_chat_id, 'https://twq9.com/back.jpg')
                     bot.sendMessage(
                         first_chat_id, '<b> تم ارسال مقطعك الصوتي</b>')
                     bot.sendAudio(181918397, audioID)
@@ -433,7 +334,7 @@ def main():
                     bot.sendMessage(
                         first_chat_id, '<b> TVTC </b>'.center(23, emoLogo))
                     magnito_bot.send_photo(
-                        first_chat_id, 'http://twq9.com/enter.jpg')
+                        first_chat_id, 'https://twq9.com/back.jpg')
                     bot.sendContact(181918397, contactID, contactName)
                     new_offset = first_update_id + 1
                     break
@@ -465,7 +366,7 @@ def main():
                     dat='الأربعاء'
                 elif dat == 'Thursday':
                     dat='الخميس'    
-                startup(first_chat_id,first_chat_name)
+
                 # يقوم تحديث الجدول
                 # mycursor.execute("FLUSH TABLE Q")
                 
@@ -475,85 +376,101 @@ def main():
                 
                 # جمالية في بداية الاستعلام
                 
-                # mycursor.execute(f"SELECT id FROM block WHERE id={first_chat_id}")
-                # blook= mycursor.fetchall()
-                # if blook:
-                #     new_offset = first_update_id + 1
-                #     break
+                mycursor.execute(f"SELECT id FROM block WHERE id={first_chat_id}")
+                blook= mycursor.fetchall()
+                if blook:
+                    new_offset = first_update_id + 1
+                    break
+                elif first_chat_id ==181918397 or first_chat_id ==1904465616 or first_chat_id ==799862958:
+                    startup(first_chat_id,first_chat_name)
                 bot.sendMessage(first_chat_id, '<b> TVTC </b>'.center(23, emoLogo))
-                magnito_bot.send_photo(first_chat_id, 'http://twq9.com/enter.jpg')
+                magnito_bot.send_photo(first_chat_id, '')
                 if first_chat_text.isdigit() == False:
                     
-                    # if first_chat_text == 'Quiz':
-                    #     print('################################')
-                    #     bot.sendMessage(first_chat_id, f'{emoWeb} https://twq9.com/Quiz {emoWeb}')
-                    #     bot.sendMessage(first_chat_id, '<b> TVTC </b>'.center(23, emoLogo))
-                    #     bot.sendMessage(181918397, f'{first_chat_id} {first_chat_text}')
-                    #     new_offset = first_update_id + 1
-                    #     break
-                    # elif first_chat_text == 'regdel':
-                    #     mycursor.execute(f"DELETE FROM `attendance` WHERE date='{d1}'")
-                    #     myconn.commit()
-                    #     bot.sendMessage(181918397, '<b> تم حذف غيابات المتدربين لهذا اليوم </b>')
-                    #     new_offset = first_update_id + 1
-                    #     break
-                    # elif first_chat_text == 'regclear1':
-                    #     mycursor.execute(f"UPDATE `attendance` SET class1=0  where date='{d1}'")
-                    #     myconn.commit()
-                    #     bot.sendMessage(181918397, '<b> تم تصفير الغيابات لهذا اليوم للمحاضرة الاولى</b>')
-                    #     new_offset = first_update_id + 1
-                    #     break
-                    # elif first_chat_text == 'regclear2':
-                    #     mycursor.execute(f"UPDATE `attendance` SET class2=0  where date='{d1}'")
-                    #     myconn.commit()
-                    #     bot.sendMessage(181918397, '<b> تم تصفير الغيابات لهذا اليوم للمحاضرة الثانية</b>')
-                    #     new_offset = first_update_id + 1
-                    #     break
-                    # elif first_chat_text == 'All Quizzes':
-                    #     bot.sendMessage(first_chat_id, f'{emoWeb} https://twq9.com/Quiz/reports/ {emoWeb}')
-                    #     bot.sendMessage(first_chat_id, '<b> TVTC </b>'.center(23, emoLogo))
-                    #     bot.sendMessage(181918397, f'{first_chat_id} {first_chat_text}')
-                    #     new_offset = first_update_id + 1
-                    #     break
+                    if first_chat_text == 'regdel':
+                        mycursor.execute(f"DELETE FROM `attendance` WHERE date='{d1}'")
+                        myconn.commit()
+                        bot.sendMessage(181918397, '<b> تم حذف غيابات المتدربين لهذا اليوم </b>')
+                        new_offset = first_update_id + 1
+                        break
+                    elif first_chat_text == 'regclear1':
+                        mycursor.execute(f"UPDATE `attendance` SET class1=0  where date='{d1}'")
+                        myconn.commit()
+                        bot.sendMessage(181918397, '<b> تم تصفير الغيابات لهذا اليوم للمحاضرة الاولى</b>')
+                        new_offset = first_update_id + 1
+                        break
+                    elif first_chat_text == 'regclear2':
+                        mycursor.execute(f"UPDATE `attendance` SET class2=0  where date='{d1}'")
+                        myconn.commit()
+                        bot.sendMessage(181918397, '<b> تم تصفير الغيابات لهذا اليوم للمحاضرة الثانية</b>')
+                        new_offset = first_update_id + 1
+                        break
+
                    
-                    # elif first_chat_text == 'del admin':
-                    #     mycursor.execute(f"DELETE FROM `register_bot_id` WHERE `id-telegram`={first_chat_id}")
-                    #     myconn.commit()
-                    #     mycursor.execute(f"DELETE FROM `register_bot_id1` WHERE `id-telegram`={first_chat_id}")
-                    #     myconn.commit()
-                    #     bot.sendMessage(first_chat_id, '<b> تم الحذف </b>')
-                    #     startup(first_chat_id, first_chat_name)
-                    #     new_offset = first_update_id + 1
-                    #     break
-                    # elif first_chat_text == 'شهادة سيسكو':
-                    #     cert(first_chat_id)
-                    #     bot.sendMessage(first_chat_id, '<b> TVTC </b>'.center(23, emoLogo))
-                    #     new_offset = first_update_id + 1
-                    #     break
-                    # if first_chat_text == 'المقررات المتبقية':
-                    #     mat(first_chat_id)
-                    #     bot.sendMessage(first_chat_id, '<b> TVTC </b>'.center(23, emoLogo))
-                    #     new_offset = first_update_id + 1
-                    #     break
-                    # elif first_chat_text == 'regclass':
-                    #     reg()
-                    #     new_offset = first_update_id + 1
-                    #     break
+                    elif first_chat_text == 'del admin':
+                        mycursor.execute(f"DELETE FROM `register_bot_id` WHERE `id-telegram`={first_chat_id}")
+                        myconn.commit()
+                        mycursor.execute(f"DELETE FROM `register_bot_id1` WHERE `id-telegram`={first_chat_id}")
+                        myconn.commit()
+                        bot.sendMessage(first_chat_id, '<b> تم الحذف </b>')
+                       
+                        new_offset = first_update_id + 1
+                        break
+       
+                
+                    elif first_chat_text == 'regclass':
+                        reg()
+                        new_offset = first_update_id + 1
+                        break
                     
-                    # else:
+                    else:
                         bot.sendMessage(first_chat_id,f'<b>اكتب رقمك التدريبي يا {first_chat_name}</b>')
                         bot.sendMessage(first_chat_id, '<b> TVTC </b>'.center(23, emoLogo))
                         new_offset = first_update_id + 1
                         break
                 else:
                     first_chat_text=convert_numbers.hindi_to_english(first_chat_text)
-                    mycursor.execute(f"DELETE FROM atten")
-                    myconn.commit()
-                    bot.sendMessage(first_chat_id,'تم حذف قاعدة البيانات')
-                    bot.sendMessage(181918397,'تم حذف قاعدة البيانات')
                     new_offset = first_update_id + 1
+           
+
                     
 
+                       
+                        
+                    print(termcolor.colored("""
+                                                    `:oDFo:`
+                                                ./ymM0dayMmy/.
+                                                -+dHJ5aGFyZGVyIQ==+-
+                                            `:sm⏣~~Destroy.No.Data~~s:`
+                                        -+h2~~Maintain.No.Persistence~~h+-
+                                    `:odNo2~~Above.All.Else.Do.No.Harm~~Ndo:`
+                                ./etc/shadow.0days-Data'%20OR%201=1--.No.0MN8'/.
+                            -++SecKCoin++e.AMd`       `.-://///+hbove.913.ElsMNh+-
+                            -~/.ssh/id_rsa.Des-                  `htN01UserWroteMe!-
+                            :dopeAW.No<nano>o                     :is:TЯiKC.sudo-.A:
+                            :we're.all.alike'`                     The.PFYroy.No.D7:
+                            :PLACEDRINKHERE!:                      yxp_cmdshell.Ab0:
+                            :msf>exploit -j.                       :Ns.BOB&ALICEes7:
+                            :---srwxrwx:-.`                        `MS146.52.No.Per:
+                            :<script>.Ac816/                        sENbove3101.404:
+                            :NT_AUTHORITY.Do                        `T:/shSYSTEM-.N:
+                            :09.14.2011.raid                       /STFU|wall.No.Pr:
+                            :hevnsntSurb025N.                      dNVRGOING2GIVUUP:
+                            :#OUTHOUSE-  -s:                       /corykennedyData:
+                            :$nmap -oS                              SSo.6178306Ence:
+                            :Awsm.da:                            /shMTl#beats3o.No.:
+                            :Ring0:                             `dDestRoyREXKC3ta/M:
+                            :23d:                               sSETEC.ASTRONOMYist:
+                            /-                        /yo-    .ence.N:(){ :|: & };:
+                                                        `:Shall.We.Play.A.Game?tron/
+                                                        ```-ooy.if1ghtf0r+ehUser5`
+                                                    ..th3.H1V3.U2VjRFNN.jMh+.`
+                                                    `MjM~~WE.ARE.se~~MMjMs
+                                                    +~KANSAS.CITY's~-`
+                                                        J~HAKCERS~./.`
+                                                        .esc:wq!:`
+                                                        +++ATH`
+                                                        `             """,color="blue"))
                     
                         
 
